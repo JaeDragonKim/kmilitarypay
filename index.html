@@ -26,8 +26,8 @@
         }
         
         .container {
-            width: 90%;
-            max-width: 1200px;
+            width: 70%;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 20px 0;
         }
@@ -65,7 +65,7 @@
         }
         
         .nav-links a:hover, .nav-links a.active {
-            background-color: #3498db;
+            background-color: #2c8fd8;
             color: white;
         }
         
@@ -119,19 +119,32 @@
         }
 
         button {
-            background-color: #3498db;
+            background-color: #2c8fd8;
             color: white;
             border: none;
             padding: 12px 20px;
-            border-radius: 4px;
+            border-radius: 50px;
             cursor: pointer;
             font-size: 16px;
             font-weight: 500;
             transition: background-color 0.3s;
+            width: 100%;
         }
-        
+
         button:hover {
-            background-color: #2980b9;
+            background-color: #2681c7;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background-color: #0277bd;
+            border: 2px solid white;
+            font-size: 18px;
+            transition: all 0.3s;
         }
         
         .result {
@@ -139,7 +152,7 @@
             padding: 20px;
             background-color: #f8f9fa;
             border-radius: 8px;
-            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .result-item {
@@ -237,6 +250,81 @@
                 margin: 0 10px;
             }
         }
+
+        .service-period {
+            background-color: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .period-highlight {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .rank-card {
+            display: flex;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .rank-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 20px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .이병 {
+            background-color: #8BC34A;
+        }
+
+        .일병 {
+            background-color: #4CAF50;
+        }
+
+        .상병 {
+            background-color: #2196F3;
+        }
+
+        .병장 {
+            background-color: #3F51B5;
+        }
+
+        .rank-details {
+            flex: 1;
+        }
+
+        .rank-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .rank-period {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .rank-salary {
+            margin-bottom: 5px;
+        }
+
+        .rank-total {
+            font-weight: bold;
+            color: #333;
+        }
+
     </style>
 </head>
 <body>
@@ -278,10 +366,10 @@
             <div class="form-group">
                 <label for="military-type">복무 유형</label>
                 <select id="military-type">
-                    <option value="army">육군/해병대</option>
-                    <option value="navy">해군</option>
-                    <option value="airforce">공군/사회복무요원</option>
-                    <option value="reserve">상근예비역</option>
+                    <option value="army">육군/해병대 (18개월)</option>
+                    <option value="navy"> 해군 (20개월)</option>
+                    <option value="airforce">공군/사회복무요원 (21개월)</option>
+                    <option value="reserve">상근예비역 (18개월)</option>
                 </select>
             </div>
             
@@ -331,7 +419,7 @@
             
             <div class="form-group">
                 <label for="monthly-deposit">월 납입액 (원)</label>
-                <input type="number" id="monthly-deposit" min="0" step="10000" value="550000" inputmode="numeric" onkeypress="return onlyNumberKey(event)">
+                <input type="number" id="monthly-deposit" min="0" max="550000" step="10000" value="550000" inputmode="numeric" onkeypress="return onlyNumberKey(event)">
             </div>
             
             <div class="form-group">
@@ -460,27 +548,29 @@
             // 월급 계산 결과 표시
             displaySalaryResult: function(resultData) {
                 // 복무 기간 표시 HTML 생성
-                const periodHTML = `<div class="service-period" style="margin-bottom: 15px; font-weight: bold;">
-                    복무 기간: ${resultData.startYear}년 ${resultData.startMonth}월 ~ 
-                    ${resultData.endYear}년 ${resultData.endMonth}월 (${resultData.totalMonths}개월)
+                const periodHTML = `<div class="service-period">
+                    복무 기간: <span class="period-highlight">${resultData.startYear}년 ${resultData.startMonth}월 ~ 
+                    ${resultData.endYear}년 ${resultData.endMonth}월 (${resultData.totalMonths}개월)</span>
                 </div>`;
                 
-                // 테이블 HTML 생성
-                let tableHTML = '<table><thead><tr><th>계급</th><th>기간</th><th>월급</th><th>총액</th></tr></thead><tbody>';
+                // 계급별 결과를 카드 형식으로 표시
+                let resultsHTML = '';
                 
                 resultData.ranks.forEach(rank => {
-                    tableHTML += `<tr>
-                        <td>${rank.name}</td>
-                        <td>${rank.period}</td>
-                        <td>${this.formatNumber(rank.monthlySalary)}</td>
-                        <td>${this.formatNumber(rank.totalSalary)}</td>
-                    </tr>`;
+                    resultsHTML += `
+                    <div class="rank-card">
+                        <div class="rank-icon ${rank.name}">${rank.name}</div>
+                        <div class="rank-details">
+                            <div class="rank-title">${rank.name}</div>
+                            <div class="rank-period">${rank.period}</div>
+                            <div class="rank-salary">월 급여: ${this.formatNumber(rank.monthlySalary)}</div>
+                            <div class="rank-total">총액: ${this.formatNumber(rank.totalSalary)}</div>
+                        </div>
+                    </div>`;
                 });
                 
-                tableHTML += '</tbody></table>';
-                
                 // 결과 표시
-                document.getElementById(this.DOM.salaryForm.tableContainer).innerHTML = periodHTML + tableHTML;
+                document.getElementById(this.DOM.salaryForm.tableContainer).innerHTML = periodHTML + resultsHTML;
                 document.getElementById(this.DOM.salaryForm.totalSalary).textContent = this.formatNumber(resultData.totalSalary);
                 document.getElementById(this.DOM.salaryForm.resultContainer).classList.remove('hidden');
             },
@@ -721,6 +811,11 @@
         document.getElementById('monthly-deposit').addEventListener('input', function(e) {
             // 숫자가 아닌 모든 문자 제거
             this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // 최댓값 검증 (550000원 초과 시 550000으로 설정)
+            if (parseInt(this.value) > 550000) {
+                this.value = '550000';
+            }
         });
 
         document.getElementById('interest-rate').addEventListener('input', function(e) {
